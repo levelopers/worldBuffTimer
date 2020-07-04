@@ -13,21 +13,18 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
+        <tr v-if="fixedTimer">
           <th scope="row">fixed timer</th>
           <td>
-            <display v-if="fixedTimer"
-                     :last-drop="fixedTimer.onyx"
+            <display :last-drop="fixedTimer.onyx"
                      :buff-type="BUFF_TYPE_ENUM.ONYX"></display>
           </td>
           <td>
-            <display v-if="fixedTimer"
-                     :last-drop="fixedTimer.rend"
+            <display :last-drop="fixedTimer.rend"
                      :buff-type="BUFF_TYPE_ENUM.REND"></display>
           </td>
           <td>
-            <display v-if="fixedTimer"
-                     :last-drop="fixedTimer.nef"
+            <display :last-drop="fixedTimer.nef"
                      :buff-type="BUFF_TYPE_ENUM.NEF"></display>
           </td>
           <td>
@@ -36,22 +33,24 @@
         </tr>
         <tr v-for="(userTimer, index) in usersTimer"
             v-bind:key="index">
-          <th>{{userTimer.username}}</th>
-          <td>
-            <display :last-drop="userTimer.onyx"
-                     :buff-type="BUFF_TYPE_ENUM.ONYX"></display>
-          </td>
-          <td>
-            <display :last-drop="userTimer.rend"
-                     :buff-type="BUFF_TYPE_ENUM.REND"></display>
-          </td>
-          <td>
-            <display :last-drop="userTimer.nef"
-                     :buff-type="BUFF_TYPE_ENUM.NEF"></display>
-          </td>
-          <td>
-            <last-updated-time :lastUpdated="userTimer.lastUpdated"></last-updated-time>
-          </td>
+          <template v-if="userTimer">
+            <th>{{userTimer.username}}</th>
+            <td>
+              <display :last-drop="userTimer.onyx"
+                       :buff-type="BUFF_TYPE_ENUM.ONYX"></display>
+            </td>
+            <td>
+              <display :last-drop="userTimer.rend"
+                       :buff-type="BUFF_TYPE_ENUM.REND"></display>
+            </td>
+            <td>
+              <display :last-drop="userTimer.nef"
+                       :buff-type="BUFF_TYPE_ENUM.NEF"></display>
+            </td>
+            <td>
+              <last-updated-time :lastUpdated="userTimer.lastUpdated"></last-updated-time>
+            </td>
+          </template>
         </tr>
         <tr>
           <th>
@@ -147,7 +146,8 @@
           username: "anonymous cool guy",
           onyx: null,
           rend: null,
-          nef: null
+          nef: null,
+          lastUpdated: null
         },
         BUFF_TYPE_ENUM: BUFF_TYPE_ENUM,
       }
@@ -158,6 +158,9 @@
       this.database.ref('lastDrop/').orderByKey().once("value").then(snapshot => {
         console.log(snapshot.val());
         const snapshotObj = snapshot.val();
+        if (!snapshotObj) {
+          return;
+        }
         const snapshotObjKeys = Object.keys(snapshotObj).reverse();
         for (let key of snapshotObjKeys) {
           if (!!snapshotObj[key] && snapshotObj[key].username === 'boosted') {
