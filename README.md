@@ -1,24 +1,6 @@
-# app
+# Vuejs World buff timer
 
-## Project setup
-```
-npm install
-```
+### url: [https://boostedcamelworldbufftimer.web.app/](https://boostedcamelworldbufftimer.web.app/)
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+### what is world buff: [wowhead redirect](https://classic.wowhead.com/guides/classic-world-buff-consumables)
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
