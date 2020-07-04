@@ -9,6 +9,7 @@
           <th scope="col">Onyx</th>
           <th scope="col">Rend</th>
           <th scope="col">Nef</th>
+          <th scope="col">Last updated</th>
         </tr>
         </thead>
         <tbody>
@@ -29,6 +30,9 @@
                      :last-drop="fixedTimer.nef"
                      :buff-type="BUFF_TYPE_ENUM.NEF"></display>
           </td>
+          <td>
+            <last-updated-time :lastUpdated="fixedTimer.lastUpdated"></last-updated-time>
+          </td>
         </tr>
         <tr v-for="(userTimer, index) in usersTimer"
             v-bind:key="index">
@@ -44,6 +48,9 @@
           <td>
             <display :last-drop="userTimer.nef"
                      :buff-type="BUFF_TYPE_ENUM.NEF"></display>
+          </td>
+          <td>
+            <last-updated-time :lastUpdated="userTimer.lastUpdated"></last-updated-time>
           </td>
         </tr>
         <tr>
@@ -69,7 +76,7 @@
               </li>
             </ul>
           </th>
-          <td colspan="3" class="tab-content" id="pills-tabContent">
+          <td colspan="4" class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="manual-inputs" role="tabpanel">
               <div class="d-flex">
                 <user-input class="px-3"
@@ -114,6 +121,7 @@
 
 <script>
   import Display from './components/Display'
+  import LastUpdatedTime from "./components/LastUpdatedTime";
   import UserInput from "./components/UserInput";
   import AddonInput from "./components/AddonInput";
   import UsernameInput from "./components/UsernameInput";
@@ -126,6 +134,7 @@
     name: 'App',
     components: {
       Display,
+      LastUpdatedTime,
       UserInput,
       AddonInput,
       UsernameInput
@@ -152,9 +161,12 @@
         const snapshotObjKeys = Object.keys(snapshotObj).reverse();
         for (let key of snapshotObjKeys) {
           if (!!snapshotObj[key] && snapshotObj[key].username === 'boosted') {
-            this.fixedTimer = snapshotObj[key]
-          } else {
-            this.usersTimer.push(snapshotObj[key])
+            this.fixedTimer = snapshotObj[key];
+            this.fixedTimer['lastUpdated'] = key;
+          } else if (this.usersTimer.length < 5) {
+            const userTimer = snapshotObj[key];
+            userTimer['lastUpdated'] = key;
+            this.usersTimer.push(userTimer)
           }
         }
       });
