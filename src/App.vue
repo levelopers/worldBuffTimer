@@ -8,22 +8,27 @@
           <th scope="col">#</th>
           <th scope="col">Onyx</th>
           <th scope="col">Rend</th>
+          <th scope="col">Nef</th>
         </tr>
         </thead>
         <tbody>
         <tr>
           <th scope="row">fixed timer</th>
           <td>
-            <display v-if="fixedTimer && fixedTimer.length> 0"
-                     :last-drop="fixedTimer[0].onyx"
+            <display v-if="fixedTimer"
+                     :last-drop="fixedTimer.onyx"
                      :buff-type="BUFF_TYPE_ENUM.ONYX"></display>
           </td>
           <td>
-            <display v-if="fixedTimer && fixedTimer.length> 0"
-                     :last-drop="fixedTimer[0].rend"
+            <display v-if="fixedTimer"
+                     :last-drop="fixedTimer.rend"
                      :buff-type="BUFF_TYPE_ENUM.REND"></display>
           </td>
-          <td></td>
+          <td>
+            <display v-if="fixedTimer"
+                     :last-drop="fixedTimer.nef"
+                     :buff-type="BUFF_TYPE_ENUM.NEF"></display>
+          </td>
         </tr>
         <tr v-for="(userTimer, index) in usersTimer"
             v-bind:key="index">
@@ -36,6 +41,10 @@
             <display :last-drop="userTimer.rend"
                      :buff-type="BUFF_TYPE_ENUM.REND"></display>
           </td>
+          <td>
+            <display :last-drop="userTimer.nef"
+                     :buff-type="BUFF_TYPE_ENUM.NEF"></display>
+          </td>
         </tr>
         <tr>
           <th>
@@ -47,8 +56,7 @@
                    role="tab"
                    aria-controls="manual-inputs"
                    href="#manual-inputs"
-                   aria-selected="true"
-                   @click="tabClick">Manual</a>
+                   aria-selected="true">Manual</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link"
@@ -57,18 +65,28 @@
                    role="tab"
                    aria-controls="addon-inputs"
                    href="#addon-inputs"
-                   aria-selected="false"
-                   @click="tabClick">Addon</a>
+                   aria-selected="false">Addon</a>
               </li>
             </ul>
           </th>
-          <td colspan="2" class="tab-content" id="pills-tabContent">
+          <td colspan="3" class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="manual-inputs" role="tabpanel">
               <div class="d-flex">
-                <user-input class="px-3" @inputLastDrop="inputValue" :type="BUFF_TYPE_ENUM.ONYX"
+                <user-input class="px-3"
+                            @inputLastDrop="manualLastDrop"
+                            :type="BUFF_TYPE_ENUM.ONYX"
+                            placeholder="hh:mm:ss / mm:ss / ss"
                             label="onyx"></user-input>
-                <user-input class="px-3" @inputLastDrop="inputValue" :type="BUFF_TYPE_ENUM.REND"
+                <user-input class="px-3"
+                            @inputLastDrop="manualLastDrop"
+                            :type="BUFF_TYPE_ENUM.REND"
+                            placeholder="hh:mm:ss / mm:ss / ss"
                             label="rend"></user-input>
+                <user-input class="px-3"
+                            @inputLastDrop="manualLastDrop"
+                            :type="BUFF_TYPE_ENUM.NEF"
+                            placeholder="hh:mm:ss / mm:ss / ss"
+                            label="nef"></user-input>
               </div>
             </div>
             <div class="tab-pane fade px-3" id="addon-inputs" role="tabpanel">
@@ -78,13 +96,18 @@
         </tr>
         </tbody>
       </table>
-      <user-input @inputLastDrop="inputValue" type="username" label="username"></user-input>
+      <username-input @usernameOutput="usernameOutput"
+                      placeholder="your name here... (optional)"
+                      label="username"></username-input>
       <div class="d-flex justify-content-end">
         <button class="btn btn-outline-primary"
                 type="button"
                 @click="onSubmit">submit
         </button>
       </div>
+      <footer class="footer-copyright text-center py-3">© 2020 Copyright:
+        <a href="https://github.com/levelopers"> levelopers</a>
+      </footer>
     </div>
   </div>
 </template>
@@ -93,9 +116,10 @@
   import Display from './components/Display'
   import UserInput from "./components/UserInput";
   import AddonInput from "./components/AddonInput";
+  import UsernameInput from "./components/UsernameInput";
   import firebaseConfig from './config/firebaseConfig'
   import firebase from 'firebase'
-  import {ONYX_CD, REND_CD, BUFF_TYPE_ENUM} from './constants/constants';
+  import {BUFF_TYPE_ENUM} from './constants/constants';
   // const data = "[WorldBuffs] (Rend: 40 minutes 4 seconds) (Onyxia: No timer) (Nefarian: 5 hours 39 minutes)";
 
   export default {
@@ -103,20 +127,20 @@
     components: {
       Display,
       UserInput,
-      AddonInput
+      AddonInput,
+      UsernameInput
     },
     data: function () {
       return {
-        fixedTimer: [],
+        fixedTimer: null,
         usersTimer: [],
         uploadObj: {
           username: "anonymous cool guy",
           onyx: null,
-          rend: null
+          rend: null,
+          nef: null
         },
         BUFF_TYPE_ENUM: BUFF_TYPE_ENUM,
-        ONYX_CD: ONYX_CD,
-        REND_CD: REND_CD
       }
     },
     mounted() {
@@ -125,23 +149,22 @@
       this.database.ref('lastDrop/').orderByKey().once("value").then(snapshot => {
         console.log(snapshot.val());
         const snapshotObj = snapshot.val();
-        const snapshotObjKeys = Object.keys(snapshotObj);
+        const snapshotObjKeys = Object.keys(snapshotObj).reverse();
         for (let key of snapshotObjKeys) {
           if (!!snapshotObj[key] && snapshotObj[key].username === 'boosted') {
-            this.fixedTimer = [snapshotObj[key]]
+            this.fixedTimer = snapshotObj[key]
           } else {
             this.usersTimer.push(snapshotObj[key])
           }
         }
-        this.usersTimer = this.usersTimer.reverse();
       });
     },
     methods: {
-      tabClick: function (e) {
-        console.log(e.target.id)
-      },
-      inputValue: function (val, type) {
+      manualLastDrop: function (val, type) {
         this.uploadObj[type] = val;
+      },
+      usernameOutput: function (username) {
+        this.uploadObj['username'] = username;
       },
       onSubmit: function () {
         const dbref = this.database.ref('lastDrop/' + new Date().getTime());
@@ -176,7 +199,7 @@
     margin: 0 100px;
   }
 
-  /*table{*/
-  /*  table-layout: fixed;*/
-  /*}*/
+  table {
+    table-layout: fixed;
+  }
 </style>

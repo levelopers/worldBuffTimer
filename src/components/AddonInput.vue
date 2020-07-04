@@ -3,12 +3,16 @@
     <div class="input-group-prepend">
       <span class="input-group-text" id="inputGroup-sizing-default">{{label}}</span>
     </div>
-    <input type="text" class="form-control" v-model="inputs" @change="onChange"/>
+    <input type="text"
+           class="form-control"
+           placeholder="(Rend: 40 minutes 4 seconds) (Onyxia: No timer) (Nefarian: 5 hours 39 minutes)"
+           v-model="inputs"
+           @change="onChange"/>
   </div>
 </template>
 
 <script>
-  import {REND_CD, ONYX_CD} from '../constants/constants';
+  import {NEF_CD, ONYX_CD, REND_CD} from '../constants/constants';
 
   export default {
     name: 'addon-input',
@@ -19,27 +23,24 @@
       return {
         inputs: null,
         outputObj: {
-          rend:Number,
-          onyx:Number
+          rend: Number,
+          onyx: Number,
+          nef: Number
         }
       }
-    },
-    mounted() {
     },
     methods: {
       onChange() {
         let regexp = /\((.*?)\)/g;
         let array = [...this.inputs.matchAll(regexp)];
-        console.log(array);
         for (let item of array) {
           if (!!item[0] && item[0].match(/rend/gi)) {
             this.outputObj['rend'] = this.getLastDrop(item[0], REND_CD)
           } else if (!!item[0] && item[0].match(/onyx/gi)) {
             this.outputObj['onyx'] = this.getLastDrop(item[0], ONYX_CD)
+          } else if (!!item[0] && item[0].match(/nef/gi)) {
+            this.outputObj['nef'] = this.getLastDrop(item[0], NEF_CD)
           }
-          // else if (!!item[0] && item[0].match(/nef/gi)) {
-          //   this.outputObj['nef'] = this.getLastDrop(item[0], REND_CD)
-          // }
         }
         this.$emit('addonInput', this.outputObj)
       },
@@ -47,16 +48,16 @@
         if (!timeStr) {
           return null;
         }
-        let hours = this.getNumber(/\d{1,2}\s*(hr|hour|hours)/g,timeStr);
-        let minutes = this.getNumber(/\d{1,2}\s*(min|minute|minutes)/g,timeStr);
-        let seconds = this.getNumber(/\d{1,2}\s*(sec|second|seconds)/g,timeStr);
+        let hours = this.getNumber(/\d{1,2}\s*(hr|hour|hours)/g, timeStr);
+        let minutes = this.getNumber(/\d{1,2}\s*(min|minute|minutes)/g, timeStr);
+        let seconds = this.getNumber(/\d{1,2}\s*(sec|second|seconds)/g, timeStr);
         hours = hours < 24 ? hours : 0;
         minutes = minutes < 60 ? minutes : 0;
         seconds = seconds < 60 ? seconds : 0;
         const newDist = hours * 1000 * 60 * 60
             + minutes * 1000 * 60
             + seconds * 1000;
-        if (!newDist){
+        if (!newDist) {
           return null;
         }
         const nextDrop = this.getNow() + newDist;
@@ -67,7 +68,7 @@
         return new Date().getTime();
       },
       getNumber(matchRegex, str) {
-        matchRegex = new RegExp(matchRegex)
+        matchRegex = new RegExp(matchRegex);
         let r1, r2;
         r1 = str.match(matchRegex);
         r1 = r1 ? r1[0] : '';
@@ -80,4 +81,23 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  ::-webkit-input-placeholder {
+    font-size: .8rem !important;
+  }
+
+  :-moz-placeholder { /* Firefox 18- */
+    font-size: .8rem !important;
+  }
+
+  ::-moz-placeholder { /* Firefox 19+ */
+    font-size: .8rem !important;
+  }
+
+  :-ms-input-placeholder { /* Internet Explorer 10-11 */
+    font-size: .8rem !important;
+  }
+
+  ::-ms-input-placeholder { /* Microsoft Edge */
+    font-size: .8rem !important;
+  }
 </style>
