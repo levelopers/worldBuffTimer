@@ -209,6 +209,7 @@
 
   .content {
     margin: 0 100px;
+    height: 100%;
   }
 
   table {
