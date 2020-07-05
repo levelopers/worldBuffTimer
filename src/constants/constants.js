@@ -12,10 +12,16 @@ const TIMER_TYPE_ENUM = {
 };
 Object.freeze(BUFF_TYPE_ENUM);
 Object.freeze(TIMER_TYPE_ENUM);
+const REQUEST_STATUS = {
+    PENDING: 'pending',
+    SUCCESS: 'success',
+    FAIL: 'fail'
+};
 export {
     ONYX_CD,
     REND_CD,
     NEF_CD,
     BUFF_TYPE_ENUM,
-    TIMER_TYPE_ENUM
+    TIMER_TYPE_ENUM,
+    REQUEST_STATUS
 }

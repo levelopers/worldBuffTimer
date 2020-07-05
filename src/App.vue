@@ -117,6 +117,9 @@
                      :buff-type="BUFF_TYPE_ENUM.NEF"
                      :freezed="true"></display>
           </td>
+          <td>
+            <span style="font-size:1rem">thank you!&#128536;</span>
+          </td>
         </tr>
         </tbody>
       </table>
@@ -124,10 +127,27 @@
                       placeholder="your name here... (optional)"
                       label="username"></username-input>
       <div class="d-flex justify-content-end">
-        <button class="btn btn-primary"
+        <button class="btn btn-primary d-flex"
                 type="button"
                 :disabled="isSubmitDisabled"
                 @click="onSubmit">submit
+          <template v-if="uploadStatus===REQUEST_STATUS.PENDING">
+            <div class="my-icon">
+              <div class="spinner-border spinner-border-sm" role="status">
+                <span class="sr-only">Loading...</span>
+              </div>
+            </div>
+          </template>
+          <template v-if="uploadStatus===REQUEST_STATUS.SUCCESS">
+            <div class="my-icon text-success">
+              <i class="fas fa-check"></i>
+            </div>
+          </template>
+          <template v-if="uploadStatus===REQUEST_STATUS.FAIL">
+            <div class="my-icon text-danger">
+              <i class="fas fa-times"></i>
+            </div>
+          </template>
         </button>
       </div>
       <footer class="footer-copyright text-center py-3">© 2020 Copyright:
@@ -145,7 +165,7 @@
   import UsernameInput from "./components/UsernameInput";
   import firebaseConfig from './config/firebaseConfig'
   import firebase from 'firebase'
-  import {BUFF_TYPE_ENUM} from './constants/constants';
+  import {BUFF_TYPE_ENUM, REQUEST_STATUS} from './constants/constants';
 
   export default {
     name: 'App',
@@ -168,7 +188,9 @@
           lastUpdated: null
         },
         BUFF_TYPE_ENUM: BUFF_TYPE_ENUM,
-        isSubmitDisabled: true
+        isSubmitDisabled: true,
+        uploadStatus: null,
+        REQUEST_STATUS: REQUEST_STATUS
       }
     },
     watch: {
@@ -213,8 +235,13 @@
         this.uploadObj['username'] = username;
       },
       onSubmit: function () {
+        this.uploadStatus = REQUEST_STATUS.PENDING;
         const dbref = this.database.ref('lastDrop/' + new Date().getTime());
-        dbref.set(this.uploadObj).finally(() => {
+        dbref.set(this.uploadObj).catch((err) => {
+          this.uploadStatus = REQUEST_STATUS.FAIL;
+          return err;
+        }).finally(() => {
+          this.uploadStatus = REQUEST_STATUS.SUCCESS;
           console.log(this.uploadObj)
         });
       },
@@ -244,6 +271,10 @@
   .content {
     margin: 0 100px;
     height: 100%;
+  }
+
+  .my-icon {
+    margin-left: .3rem;
   }
 
   table {

@@ -8,6 +8,9 @@
              class="form-control"
              placeholder="(Rend: 40 minutes 4 seconds) (Onyxia: No timer) (Nefarian: 5 hours 39 minutes)"
              v-model="inputs"/>
+      <div class="input-group-append">
+        <button class="btn btn-secondary" type="button" @click="clear"><i class="fas fa-times"></i></button>
+      </div>
     </div>
     <div class="error text-danger">
       {{error}}
@@ -99,6 +102,10 @@
         r1 = r1 ? r1[0] : '';
         r2 = r1.match(/\d{1,2}/g);
         return r2 ? parseInt(r2[0]) : 0
+      },
+      clear() {
+        this.inputs = null;
+        this.error = null;
       }
     }
   }
