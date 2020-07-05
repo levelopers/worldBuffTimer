@@ -1,18 +1,23 @@
 <template>
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="inputGroup-sizing-default">{{label}}</span>
+  <div>
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroup-sizing-default">{{label}}</span>
+      </div>
+      <input type="text"
+             class="form-control"
+             placeholder="(Rend: 40 minutes 4 seconds) (Onyxia: No timer) (Nefarian: 5 hours 39 minutes)"
+             v-model="inputs"/>
     </div>
-    <input type="text"
-           class="form-control"
-           placeholder="(Rend: 40 minutes 4 seconds) (Onyxia: No timer) (Nefarian: 5 hours 39 minutes)"
-           v-model="inputs"
-           @change="onChange"/>
+    <div class="error text-danger">
+      {{error}}
+    </div>
   </div>
 </template>
 
 <script>
   import {NEF_CD, ONYX_CD, REND_CD} from '../constants/constants';
+  // const data = "[WorldBuffs] (Rend: 40 minutes 4 seconds) (Onyxia: No timer) (Nefarian: 5 hours 39 minutes)";
 
   export default {
     name: 'addon-input',
@@ -23,16 +28,36 @@
       return {
         inputs: null,
         outputObj: {
-          rend: Number,
-          onyx: Number,
-          nef: Number
+          rend: null,
+          onyx: null,
+          nef: null
+        },
+        error: null
+      }
+    },
+    watch: {
+      inputs: function () {
+        this.onChange();
+        if (this.outputObj && (this.outputObj['rend'] || this.outputObj['onyx'] || this.outputObj['nef'])) {
+          this.error = null;
+        } else {
+          this.error = "invalid input"
         }
+        this.emitValue(this.outputObj);
       }
     },
     methods: {
+      emitValue(val) {
+        this.$emit('addonInput', val)
+      },
       onChange() {
         let regexp = /\((.*?)\)/g;
         let array = [...this.inputs.matchAll(regexp)];
+        if (array.length < 1) {
+          Object.keys(this.outputObj).map(key => {
+            this.outputObj[key] = null;
+          });
+        }
         for (let item of array) {
           if (!!item[0] && item[0].match(/rend/gi)) {
             this.outputObj['rend'] = this.getLastDrop(item[0], REND_CD)
@@ -42,7 +67,6 @@
             this.outputObj['nef'] = this.getLastDrop(item[0], NEF_CD)
           }
         }
-        this.$emit('addonInput', this.outputObj)
       },
       getLastDrop(timeStr, cd) {
         if (!timeStr) {

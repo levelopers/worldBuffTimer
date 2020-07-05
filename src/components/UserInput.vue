@@ -7,8 +7,7 @@
       <input type="text"
              class="form-control userInput"
              :placeholder="placeholder"
-             v-model="inputs"
-             @change="onChange"/>
+             v-model="inputs"/>
     </div>
     <div class="text-danger">
       {{error}}
@@ -55,9 +54,11 @@
       inputs: function (val) {
         this.inputs = val.replace(/\s+/g, '').trim();
         if (!this.validateTimeInput(this.inputs)) {
-          return this.error = 'invalid input'
+          this.error = 'invalid input'
+        } else {
+          this.error = null;
         }
-        this.error = null;
+        this.onChange();
       }
     },
     methods: {

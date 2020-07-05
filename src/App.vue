@@ -106,8 +106,9 @@
                       placeholder="your name here... (optional)"
                       label="username"></username-input>
       <div class="d-flex justify-content-end">
-        <button class="btn btn-outline-primary"
+        <button class="btn btn-primary"
                 type="button"
+                :disabled="isSubmitDisabled"
                 @click="onSubmit">submit
         </button>
       </div>
@@ -127,7 +128,6 @@
   import firebaseConfig from './config/firebaseConfig'
   import firebase from 'firebase'
   import {BUFF_TYPE_ENUM} from './constants/constants';
-  // const data = "[WorldBuffs] (Rend: 40 minutes 4 seconds) (Onyxia: No timer) (Nefarian: 5 hours 39 minutes)";
 
   export default {
     name: 'App',
@@ -150,6 +150,19 @@
           lastUpdated: null
         },
         BUFF_TYPE_ENUM: BUFF_TYPE_ENUM,
+        isSubmitDisabled: true
+      }
+    },
+    watch: {
+      uploadObj: {
+        deep: true,
+        handler(uploadObj){
+          if (uploadObj['rend'] || uploadObj['onyx'] || uploadObj['nef']) {
+            this.isSubmitDisabled = false;
+          } else {
+            this.isSubmitDisabled = true;
+          }
+        }
       }
     },
     mounted() {

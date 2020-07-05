@@ -7,8 +7,7 @@
       <input type="text"
              class="form-control userInput"
              :placeholder="placeholder"
-             v-model="inputs"
-             @change="onChange"/>
+             v-model="inputs"/>
 
     </div>
     <div class="error text-danger">
@@ -36,15 +35,17 @@
       inputs: function () {
         const formatedInput = this.inputs.replace(/\s+/g, '').trim();
         if (!this.validate(formatedInput)) {
-          return this.error = "invalid input"
+           this.error = "invalid input"
+        } else {
+          this.error = null
         }
-        this.error = null
+        this.onChange(formatedInput);
       }
     },
     methods: {
-      onChange() {
+      onChange(inputs) {
         if (!this.error) {
-          this.$emit('usernameOutput', this.inputs);
+          this.$emit('usernameOutput', inputs);
         } else {
           this.$emit('usernameOutput', "anonymous cool guy");
         }
