@@ -100,6 +100,24 @@
             </div>
           </td>
         </tr>
+        <tr v-if="uploadObj">
+          <th scope="row">your submission</th>
+          <td>
+            <display :last-drop="uploadObj.onyx"
+                     :buff-type="BUFF_TYPE_ENUM.ONYX"
+                     :freezed="true"></display>
+          </td>
+          <td>
+            <display :last-drop="uploadObj.rend"
+                     :buff-type="BUFF_TYPE_ENUM.REND"
+                     :freezed="true"></display>
+          </td>
+          <td>
+            <display :last-drop="uploadObj.nef"
+                     :buff-type="BUFF_TYPE_ENUM.NEF"
+                     :freezed="true"></display>
+          </td>
+        </tr>
         </tbody>
       </table>
       <username-input @usernameOutput="usernameOutput"
@@ -156,7 +174,7 @@
     watch: {
       uploadObj: {
         deep: true,
-        handler(uploadObj){
+        handler(uploadObj) {
           if (uploadObj['rend'] || uploadObj['onyx'] || uploadObj['nef']) {
             this.isSubmitDisabled = false;
           } else {

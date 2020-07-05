@@ -78,12 +78,13 @@
         hours = hours < 24 ? hours : 0;
         minutes = minutes < 60 ? minutes : 0;
         seconds = seconds < 60 ? seconds : 0;
-        const newDist = hours * 1000 * 60 * 60
+        let newDist = hours * 1000 * 60 * 60
             + minutes * 1000 * 60
             + seconds * 1000;
         if (!newDist) {
           return null;
         }
+        newDist += 10; //compensation
         const nextDrop = this.getNow() + newDist;
         const lastDrop = nextDrop - cd;
         return lastDrop;

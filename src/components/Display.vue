@@ -11,7 +11,8 @@
     name: 'display',
     props: {
       lastDrop: null,
-      buffType: null
+      buffType: null,
+      freezed: Boolean(false)
     },
     data: function () {
       return {
@@ -22,15 +23,22 @@
     mounted() {
       if (this.buffType === BUFF_TYPE_ENUM.REND) {
         this.cd = REND_CD
-      } else if(this.buffType === BUFF_TYPE_ENUM.ONYX) {
+      } else if (this.buffType === BUFF_TYPE_ENUM.ONYX) {
         this.cd = ONYX_CD
-      } else if(this.buffType === BUFF_TYPE_ENUM.NEF) {
+      } else if (this.buffType === BUFF_TYPE_ENUM.NEF) {
         this.cd = NEF_CD
       }
       this.time = this.getDisplay();
-      setInterval(() => {
+      if (!this.freezed) {
+        setInterval(() => {
+          this.time = this.getDisplay();
+        }, 1050)
+      }
+    },
+    watch: {
+      lastDrop: function () {
         this.time = this.getDisplay();
-      }, 1050)
+      }
     },
     methods: {
       getDisplay: function () {
@@ -38,6 +46,9 @@
         return this.logTime(dist);
       },
       getDistance(lastDrop, cd) {
+        if (!lastDrop) {
+          return;
+        }
         let nextDrop = lastDrop + cd;
         while (nextDrop < this.getNow()) {
           nextDrop += cd;
@@ -45,9 +56,10 @@
         return nextDrop - this.getNow();
       },
       logTime: function (distance) {
-        if (!distance || distance < 0) {
+        if (!distance || distance <= 0) {
           return 'no time available'
         }
+        distance += 10; // compensation
         var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         var seconds = Math.floor((distance % (1000 * 60)) / 1000);
