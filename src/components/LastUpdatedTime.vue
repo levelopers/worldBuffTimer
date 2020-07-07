@@ -11,13 +11,10 @@
     props: {
       lastUpdated: null,
     },
-    data: function () {
-      return {
-        time: null,
+    computed: {
+      time: function () {
+        return this.getDisplay();
       }
-    },
-    mounted() {
-      this.time = this.getDisplay();
     },
     methods: {
       getDisplay: function () {

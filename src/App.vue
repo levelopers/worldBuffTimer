@@ -206,26 +206,8 @@
       }
     },
     mounted() {
-      var fa = firebase.initializeApp(firebaseConfig);
-      this.database = fa.database();
-      this.database.ref('lastDrop/').orderByKey().once("value").then(snapshot => {
-        console.log(snapshot.val());
-        const snapshotObj = snapshot.val();
-        if (!snapshotObj) {
-          return;
-        }
-        const snapshotObjKeys = Object.keys(snapshotObj).reverse();
-        for (let key of snapshotObjKeys) {
-          if (!!snapshotObj[key] && snapshotObj[key].username === 'boosted') {
-            this.fixedTimer = snapshotObj[key];
-            this.fixedTimer['lastUpdated'] = key;
-          } else if (this.usersTimer.length < 5) {
-            const userTimer = snapshotObj[key];
-            userTimer['lastUpdated'] = key;
-            this.usersTimer.push(userTimer)
-          }
-        }
-      });
+      this.initFirebase();
+      this.initTable();
     },
     methods: {
       manualLastDrop: function (val, type) {
@@ -242,12 +224,40 @@
           return err;
         }).finally(() => {
           this.uploadStatus = REQUEST_STATUS.SUCCESS;
-          console.log(this.uploadObj)
+          setTimeout(() => {
+            this.uploadStatus = null;
+            this.initTable();
+          }, 2000)
         });
       },
       addonInput: function (val) {
         Object.keys(val).forEach((key) => (val[key] == null) && delete val[key]);
         Object.assign(this.uploadObj, val);
+      },
+      initTable() {
+        this.database.ref('lastDrop/').orderByKey().once("value").then(snapshot => {
+          const snapshotObj = snapshot.val();
+          if (!snapshotObj) {
+            return;
+          }
+          const snapshotObjKeys = Object.keys(snapshotObj).reverse();
+          this.fixedTimer=null;
+          this.usersTimer=[];
+          for (let key of snapshotObjKeys) {
+            if (!!snapshotObj[key] && snapshotObj[key].username === 'boosted') {
+              this.fixedTimer = snapshotObj[key];
+              this.fixedTimer['lastUpdated'] = key;
+            } else if (this.usersTimer.length < 5) {
+              const userTimer = snapshotObj[key];
+              userTimer['lastUpdated'] = key;
+              this.usersTimer.push(userTimer)
+            }
+          }
+        });
+      },
+      initFirebase(){
+        const fa = firebase.initializeApp(firebaseConfig);
+        this.database = fa.database();
       }
     }
   }
