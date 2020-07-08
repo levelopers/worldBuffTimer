@@ -7,7 +7,7 @@
 ---
 ### Description
 
-every raider wants to get world buffs before raids but it's really annoying to check out world buff droppping time by login the game. here's a solution that you can know the buff dropping time on your laptop or your phone while you are in the middle of something. then loggin in get your world buffs and be on the top of the damage meter! 
+every raider wants to be world buffed before raids and here's a solution that you are still able to know the buff dropping time on your laptop or your phone while you are in the middle of something. then loggin in get your world buffs and be on the top of the damage meter! 
 
 ---
 
