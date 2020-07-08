@@ -79,16 +79,19 @@
             <div class="tab-pane fade show active" id="manual-inputs" role="tabpanel">
               <div class="d-flex">
                 <user-input class="px-3"
+                            ref="user-input-onyx"
                             @inputLastDrop="manualLastDrop"
                             :type="BUFF_TYPE_ENUM.ONYX"
                             placeholder="hh:mm:ss / mm:ss / ss"
                             label="onyx"></user-input>
                 <user-input class="px-3"
+                            ref="user-input-rend"
                             @inputLastDrop="manualLastDrop"
                             :type="BUFF_TYPE_ENUM.REND"
                             placeholder="hh:mm:ss / mm:ss / ss"
                             label="rend"></user-input>
                 <user-input class="px-3"
+                            ref="user-input-nef"
                             @inputLastDrop="manualLastDrop"
                             :type="BUFF_TYPE_ENUM.NEF"
                             placeholder="hh:mm:ss / mm:ss / ss"
@@ -96,7 +99,9 @@
               </div>
             </div>
             <div class="tab-pane fade px-3" id="addon-inputs" role="tabpanel">
-              <addon-input @addonInput="addonInput" label="addon input"></addon-input>
+              <addon-input ref="addon-input"
+                           @addonInput="addonInput"
+                           label="addon input"></addon-input>
             </div>
           </td>
         </tr>
@@ -123,7 +128,8 @@
         </tr>
         </tbody>
       </table>
-      <username-input @usernameOutput="usernameOutput"
+      <username-input ref="username-input"
+                      @usernameOutput="usernameOutput"
                       placeholder="your name here... (optional)"
                       label="username"></username-input>
       <div class="d-flex justify-content-end">
@@ -218,6 +224,7 @@
       },
       onSubmit: function () {
         this.uploadStatus = REQUEST_STATUS.PENDING;
+        this.isSubmitDisabled = true;
         const dbref = this.database.ref('lastDrop/' + new Date().getTime());
         dbref.set(this.uploadObj).catch((err) => {
           this.uploadStatus = REQUEST_STATUS.FAIL;
@@ -226,6 +233,7 @@
           this.uploadStatus = REQUEST_STATUS.SUCCESS;
           setTimeout(() => {
             this.uploadStatus = null;
+            this.resetInputs();
             this.initTable();
           }, 2000)
         });
@@ -241,8 +249,8 @@
             return;
           }
           const snapshotObjKeys = Object.keys(snapshotObj).reverse();
-          this.fixedTimer=null;
-          this.usersTimer=[];
+          this.fixedTimer = null;
+          this.usersTimer = [];
           for (let key of snapshotObjKeys) {
             if (!!snapshotObj[key] && snapshotObj[key].username === 'boosted') {
               this.fixedTimer = snapshotObj[key];
@@ -255,9 +263,16 @@
           }
         });
       },
-      initFirebase(){
+      initFirebase() {
         const fa = firebase.initializeApp(firebaseConfig);
         this.database = fa.database();
+      },
+      resetInputs() {
+        this.$refs['user-input-onyx'].inputs = '';
+        this.$refs['user-input-rend'].inputs = '';
+        this.$refs['user-input-nef'].inputs = '';
+        this.$refs['addon-input'].inputs = '';
+        // this.$refs['username-input'].inputs = '';
       }
     }
   }
@@ -289,5 +304,20 @@
 
   table {
     table-layout: fixed;
+  }
+
+  @media (max-width: 768px) {
+    html {
+      font-size: 10px;
+    }
+
+    .input-group-text {
+      padding: 0;
+    }
+
+    .content {
+      margin: 0;
+      padding: 5vw;
+    }
   }
 </style>

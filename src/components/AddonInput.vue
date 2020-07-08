@@ -41,7 +41,9 @@
     watch: {
       inputs: function () {
         this.onChange();
-        if (this.outputObj && (this.outputObj['rend'] || this.outputObj['onyx'] || this.outputObj['nef'])) {
+        if (!!this.outputObj
+            && (this.outputObj['rend'] || this.outputObj['onyx'] || this.outputObj['nef'])
+            || !this.inputs) {
           this.error = null;
         } else {
           this.error = "invalid input"
