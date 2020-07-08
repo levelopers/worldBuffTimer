@@ -62,6 +62,7 @@
                    role="tab"
                    aria-controls="manual-inputs"
                    href="#manual-inputs"
+                   @click="toggleTab"
                    aria-selected="true">Manual</a>
               </li>
               <li class="nav-item">
@@ -71,6 +72,7 @@
                    role="tab"
                    aria-controls="addon-inputs"
                    href="#addon-inputs"
+                   @click="toggleTab"
                    aria-selected="false">Addon</a>
               </li>
             </ul>
@@ -239,8 +241,10 @@
         });
       },
       addonInput: function (val) {
-        Object.keys(val).forEach((key) => (val[key] == null) && delete val[key]);
         Object.assign(this.uploadObj, val);
+      },
+      toggleTab: function(){
+        this.resetInputs();
       },
       initTable() {
         this.database.ref('lastDrop/').orderByKey().once("value").then(snapshot => {

@@ -106,7 +106,7 @@
         return r2 ? parseInt(r2[0]) : 0
       },
       clear() {
-        this.inputs = null;
+        this.inputs = '';
         this.error = null;
       }
     }
