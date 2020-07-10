@@ -243,7 +243,7 @@
       addonInput: function (val) {
         Object.assign(this.uploadObj, val);
       },
-      toggleTab: function(){
+      toggleTab: function () {
         this.resetInputs();
       },
       initTable() {
@@ -257,8 +257,10 @@
           this.usersTimer = [];
           for (let key of snapshotObjKeys) {
             if (!!snapshotObj[key] && snapshotObj[key].username === 'boosted') {
-              this.fixedTimer = snapshotObj[key];
-              this.fixedTimer['lastUpdated'] = key;
+              if (!this.fixedTimer) {
+                this.fixedTimer = snapshotObj[key];
+                this.fixedTimer['lastUpdated'] = key;
+              }
             } else if (this.usersTimer.length < 5) {
               const userTimer = snapshotObj[key];
               userTimer['lastUpdated'] = key;
